@@ -1,5 +1,8 @@
+package server;
+
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -88,23 +91,23 @@ public class Backend {
     }
 
     // Send a message to a peer (client or switchman)
-    void sendMessage(String id, String messageContent) throws IOException {
+    void sendMessage(String idFrom,String idTo, String messageContent) throws IOException {
         // For every client known by server
         for(Map.Entry<String, ClientThread> entry : clients.entrySet()) {
             ClientThread client = entry.getValue();
             // test if the client is the one we want to send the message
-            if (client.id.equals(id)) {
+            if (client.id.equals(idTo)) {
                 // Send the message
-                client.sendMessage(id,messageContent);
+                client.sendMessage(idTo,messageContent);
             }
         }
         // For every switchman known by server
         for (Map.Entry<String, SwitchmanThread> entry : switchmans.entrySet()) {
             SwitchmanThread switchman = entry.getValue();
             // test if the switchman is the one we want to send the message;
-            if (switchman.id.equals(id)) {
+            if (switchman.id.equals(idTo)) {
                 // Send the message
-                switchman.sendMessage(id,messageContent);
+                switchman.sendMessage(idTo,messageContent);
             }
         }
 

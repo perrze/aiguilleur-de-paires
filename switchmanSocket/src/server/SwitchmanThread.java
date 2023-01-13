@@ -1,3 +1,5 @@
+package server;
+
 import java.net.Socket;
 import java.net.SocketException;
 /**
@@ -11,10 +13,10 @@ public class SwitchmanThread extends TypicalThread {
     String macAddress;
 
     /**
-     * Constructor of SwitchmanThread class which creates a new thread for a switchman
+     * Constructor of server.SwitchmanThread class which creates a new thread for a switchman
      * With in and out streams (ObjectInputStream and ObjectOutputStream)
      *
-     * @param socket the socket of the switchman (Defined in Frontend)
+     * @param socket the socket of the switchman (Defined in server.Frontend)
      * @param backend the backend of the server
      */
     public SwitchmanThread(Socket socket,Backend backend) {

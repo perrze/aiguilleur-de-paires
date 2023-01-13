@@ -1,6 +1,10 @@
+package server;
+import switchman.SwitchmanSide;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * This class is used to create an interface for clients and switchmans to connect to the server
@@ -48,8 +52,9 @@ public class Frontend {
                         Socket socketClient=clientsSocket.accept();
                         String id = backend.addClient(new ClientThread(socketClient,backend));
                         ClientThread tempClient= backend.clients.get(id);
-                        tempClient.out.writeObject(tempClient.id);
-                        System.out.println("client " +tempClient.id+" connected");
+                        tempClient.out.println(tempClient.id);
+                        tempClient.out.flush();
+                        System.out.println("Client "+tempClient.id+" connected");
                     } catch (IOException e) {
 
                     }

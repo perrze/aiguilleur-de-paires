@@ -1,5 +1,4 @@
-package fr.perrze.aguilleurdepaires;
-
+package client;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class ClientSide {
     Thread thread;
 
     /**
-     * Constructor of ClientSide class which creates a new Socket on client by connecting to the server
+     * Constructor of Client.ClientSide class which creates a new Socket on client by connecting to the server
      * Also declare a Thread containing inputstream to get infos from server
      * @param portClient the port of the client
      * @param ipServer the ip of the server
@@ -97,7 +96,6 @@ public class ClientSide {
                         String dataType = (String) in.readObject();
                         // get the data sent by the client
                         Object content = in.readObject();
-                        SwitchmanFragment.decisionTree(dataType, content);
                     } catch (EOFException e) {
                         System.out.println("Connection lost with server.");
                         close();
@@ -133,20 +131,20 @@ public class ClientSide {
         }
     }
 
-//    public static void main(String[] args) {
-//        ClientSide clientSide=new ClientSide(5000,"10.0.0.5");
-//        System.out.println("Client is running");
-//
-//
-//
-//        try {
-//            clientSide.out.writeObject("");
-//            clientSide.out.writeObject("Hello World");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
+    public static void main(String[] args) {
+        client.ClientSide clientSide=new client.ClientSide(5000,"10.0.0.5");
+        System.out.println("Client is running");
+
+
+
+        try {
+            clientSide.out.writeObject("");
+            clientSide.out.writeObject("Hello World");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 }
 

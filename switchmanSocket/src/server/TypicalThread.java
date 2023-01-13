@@ -1,3 +1,5 @@
+package server;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,7 +20,7 @@ public class TypicalThread {
     String id;
 
     /**
-     * Constructor of TypicalThread class which creates a new thread model for clients and switchmans
+     * Constructor of server.TypicalThread class which creates a new thread model for clients and switchmans
      * With in and out streams (ObjectInputStream and ObjectOutputStream)
      * @param socket
      * @param backend
@@ -56,7 +58,7 @@ public class TypicalThread {
      * @param message the message to send
      */
     public void sendMessage(String idFrom, String message) throws IOException {
-        out.writeObject("MessageToUser");
+        out.writeObject("UserMessage");
         out.writeObject(idFrom+" : "+message);
     }
 

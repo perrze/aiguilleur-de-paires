@@ -1,3 +1,5 @@
+package switchman;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,7 +21,7 @@ public class SwitchmanSide {
     Thread thread;
 
     /**
-     * Constructor of SwitchmanSide class which creates a new Socket on switchman by connecting to the server
+     * Constructor of switchman.SwitchmanSide class which creates a new Socket on switchman by connecting to the server
      * @param portClient
      * @param ipServer
      */
@@ -117,12 +119,9 @@ public class SwitchmanSide {
      */
     public void decisionTree(String dataType, Object content) throws IOException {
         switch(dataType){
-            case "MessageToUser":
-                ArrayList<String> contentArray= (ArrayList<String>) content;
-                String peerIp=contentArray.get(0);
-                String peerId=contentArray.get(1);
-                String message=contentArray.get(2);
-                System.out.println("Message From "+peerId+"("+peerIp+") : "+message);
+            case "UserMessage":
+
+                System.out.println((String) content);
                 break;
         }
     }

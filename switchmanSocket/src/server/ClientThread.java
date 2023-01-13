@@ -1,4 +1,11 @@
-import java.io.IOException;
+package server;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import server.orderJson.UserMessage;
+
+import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -9,20 +16,52 @@ import java.util.ArrayList;
  *
  * @author perrze
  */
-public class ClientThread extends TypicalThread {
+public class ClientThread {
+    Socket socket;
+    BufferedReader in;
+    PrintWriter out;
+    InetAddress ipAddress;
+    Thread thread;
+    Backend backend;
+    String id;
+
     /**
-     * Constructor of ClientThread class which creates a new thread for a client
+     * Constructor of TypicalThread class which creates a new thread model for clients and switchmans
      * With in and out streams (ObjectInputStream and ObjectOutputStream)
-     *
-     * @param socket the socket of the client (Defined in Frontend)
-     * @param backend the backend of the server
+     * @param socket
+     * @param backend
      */
     public ClientThread(Socket socket,Backend backend) {
-        super(socket,backend);
+        try {
+            // waiting for a client
+            this.socket = socket;
+            this.backend=backend;
+            // Creating the streams for communication with the client
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            ipAddress = socket.getInetAddress();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println("Accepting a client");
         declareThread();
         thread.start();
     }
+    /**
+     * Method which close the streams and the socket of the thread
+     */
+    public void close() {
+        try {
+            in.close();
+            out.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Method which declares the thread for the client
      * The thread is used to read the messages sent by the client
@@ -37,12 +76,12 @@ public class ClientThread extends TypicalThread {
                 while (true) {
                     try {
                         // get the type of data sent by the client
-                        String dataType = (String) in.readObject();
+                        String dataType = in.readLine();
                         // get the data sent by the client
-                        Object content = in.readObject();
+                        Object content = in.readLine();
                         decisionTree(dataType,content);
-                    } catch (SocketException e){
-                        System.out.println("client " +id+" disconnected");
+                    } catch (NullPointerException e){
+                        System.out.println("Client "+id+" disconnected");
                         close();
                         backend.removeClient(id);
                         thread.interrupt();
@@ -64,29 +103,27 @@ public class ClientThread extends TypicalThread {
      * @throws IOException
      */
     public void decisionTree(String dataType, Object content) throws IOException {
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
         switch(dataType){
-            case "SendMessageSwitchman":
-                ArrayList<String> infos = (ArrayList<String>) content;
-                String smMac=infos.get(0);
-                String messageContent=infos.get(1);
+            case "UserMessage":
+                UserMessage msg = gson.fromJson((String) content,UserMessage.class);
 
                 try {
-                    String id = backend.getSwitchmanIdFromMac(smMac);
-                    backend.sendMessage(id, messageContent);
+//                    String id = backend.getSwitchmanIdFromMac(smMac);
+                    backend.sendMessage(msg.idFrom, msg.idTo, msg.msg);
 
-                } catch (SmNotFoundException e) {
-                    // send a message to user (app) to inform him that the switchman is not found
-                    // Strings to be treated by the app to display a message to the user in good language
-                    out.writeObject("MessageToUser");
-                    out.writeObject("smNotFound");
-                }
-                catch (Exception e) {
+                }catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 break;
         }
     }
+    public void sendMessage(String idFrom, String message) {
+        out.println("MessageToUser");
+        out.println(idFrom+" : "+message);
+    }
+
 
 
 }
