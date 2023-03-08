@@ -12,6 +12,8 @@ def client_program():
     client_socket = socket.socket()  # instantiate client socket
     client_socket.connect((host, port))  # connect to the server
     
+    client_socket.send(get_mac_address().encode())
+    
     input_data="XX"
     
     while True:
@@ -33,5 +35,13 @@ def serial_connection(port,ser):
     line = ser.readline().decode('utf-8').rstrip()
     return line
 
+def get_mac_address():
+    macFile="/sys/kernel/debug/bluetooth/hci0/identity"
+    with open(macFile) as f:
+        content = f.read()
+    return ''.join(content.split()[0].split(":"))
+
+
 if __name__ == '__main__':
     client_program()
+    # print(send_mac_address_6())
