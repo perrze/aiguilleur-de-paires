@@ -1,6 +1,8 @@
 #!/bin/python3
 import socket
 import serial
+from secrets import token_hex
+
 
 def client_program():
     host = "10.0.0.5"  # as both code is running on same pc
@@ -12,6 +14,9 @@ def client_program():
     client_socket = socket.socket()  # instantiate client socket
     client_socket.connect((host, port))  # connect to the server
 
+    id=token_hex(6)
+    client_socket.send(id.encode())
+    
     input_data="XX"
 
     while True:
