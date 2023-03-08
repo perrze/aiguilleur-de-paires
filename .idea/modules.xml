@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/aiguilleur-de-paires.iml" filepath="$PROJECT_DIR$/aiguilleur-de-paires.iml" />
+      <module fileurl="file://$PROJECT_DIR$/switchmanSocket/switchmanSocket.iml" filepath="$PROJECT_DIR$/switchmanSocket/switchmanSocket.iml" />
+    </modules>
+  </component>
+</project>
