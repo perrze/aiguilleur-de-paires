@@ -1,0 +1,28 @@
+.bg-primary {
+    background-color: #05204A !important;
+}
+
+.bg-light {
+    background-color: #D5CAA5 !important;
+}
+
+.bg-info {
+    background-color: #6D8A96 !important;
+}
+
+.bg-white {
+    background-color: #F7F8FF !important;
+}
+
+.bg-secondary {
+    background-color: #443D2B !important;
+}
+
+.text-secondary {
+    color: #443D2B !important;
+}
+
+.text-primary {
+    color: #05204A !important;
+}
+
