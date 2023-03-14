@@ -36,13 +36,13 @@ def android_socket(conn,id_and):
     global androids
     order = conn.recv(1024).decode()
     if (order=="list"): # if list print list of switchmans
-        # print("list")
+        print("list")
         content=[]
         for switchman in switchmans:
             content.append(switchman)
-        dataToSend=";".join(content)
+        dataToSend=(";".join(content))+"\n"
         if(dataToSend==""):
-            dataToSend="NONE"
+            dataToSend="NONE\n"
         # print(dataToSend)
         conn.send(dataToSend.encode())
         # conn.send("test".encode())
