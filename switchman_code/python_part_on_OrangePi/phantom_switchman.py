@@ -5,7 +5,7 @@ from secrets import token_hex
 
 
 def client_program():
-    host = "10.0.0.5"  # as both code is running on same pc
+    host = "10.10.0.5"  # as both code is running on same pc
     port = 13000  # socket server port number
     # Defining serial parameters into ser
     # ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
@@ -14,7 +14,8 @@ def client_program():
     client_socket = socket.socket()  # instantiate client socket
     client_socket.connect((host, port))  # connect to the server
 
-    id=token_hex(6)
+    #id=token_hex(6)
+    id="46ea41494069"
     client_socket.send(id.encode())
     
     input_data="XX"
