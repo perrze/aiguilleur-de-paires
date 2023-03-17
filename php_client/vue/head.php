@@ -3,6 +3,7 @@
 include_once __DIR__."/../main.php";
 /* --------------------------- Controller include --------------------------- */
 include_once __DIR__."/functions_vue.php";
+require __DIR__."/header.php";
 
 function printCSSImport(){
     /*return "

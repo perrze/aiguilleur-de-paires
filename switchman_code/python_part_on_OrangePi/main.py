@@ -23,7 +23,7 @@ def client_program():
         if input_data=="CL":
             break
         elif input_data=="TS":
-                client_socket.send("OK".encode())
+            client_socket.send("OK".encode())
         else:
             print("(DEBUG) Data recv from master : "+input_data) 
             output_data = serial_connection(input_data,ser)
