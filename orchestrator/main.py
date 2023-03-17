@@ -3,6 +3,7 @@ import socket
 import threading
 from secrets import token_hex
 from time import sleep
+from os import environ
 #Example socket : https://www.digitalocean.com/community/tutorials/python-socket-programming-server-client
 
 global switchmans
@@ -167,7 +168,8 @@ def chat_module(switchman_server_socket):
 
 def server_program():
     # get the hostname
-    host_sm = "10.10.0.5"
+    host_sm = "0.0.0.0"
+    # host_sm = "127.0.0.1"
     port_sm = 13000  # initiate port no above 1024
 
     switchman_server_socket = socket.socket()  # get instance
@@ -180,7 +182,8 @@ def server_program():
     accepting_sm=threading.Thread(target=accepting_switchman,args=(switchman_server_socket,))
     accepting_sm.start()
     
-    host_android = "10.10.0.5"
+    host_android = "0.0.0.0"
+    # host_android = "127.0.0.1"
     port_android = 13130
     
     android_server_socket = socket.socket()

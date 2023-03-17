@@ -1,9 +1,10 @@
 #!/bin/python3
 import socket
 import serial
+from os import environ
 
 def client_program():
-    host = "10.0.0.5"  # as both code is running on same pc
+    host = environ["ORCHIP"]  # as both code is running on same pc
     port = 13000  # socket server port number
     # Defining serial parameters into ser
     ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
@@ -21,10 +22,13 @@ def client_program():
         input_data = client_socket.recv(1024).decode()  # receive server port order
         if input_data=="CL":
             break
-        print("(DEBUG) Data recv from master : "+input_data) 
-        output_data = serial_connection(input_data,ser)
-        print("(DEBUG) Data recv from Arduino : "+output_data)
-        client_socket.send(output_data.encode())
+        elif input_data=="TS":
+                client_socket.send("OK".encode())
+        else:
+            print("(DEBUG) Data recv from master : "+input_data) 
+            output_data = serial_connection(input_data,ser)
+            print("(DEBUG) Data recv from Arduino : "+output_data)
+            client_socket.send(output_data.encode())
 
     client_socket.send("EX".encode())
     client_socket.close()
