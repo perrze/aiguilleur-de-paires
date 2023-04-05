@@ -1,10 +1,8 @@
-# syntax=docker/dockerfile:1
-FROM debian
-RUN apt update
-RUN apt install -y python3
-RUN apt clean
-ADD ./main.py /main.py
-EXPOSE 13130
+FROM python:latest
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+ADD ./orchestrator_main.py /opt/
 EXPOSE 13000
-CMD python3 /main.py
+EXPOSE 5000
+CMD python3 /opt/orchestrator_main.py
 

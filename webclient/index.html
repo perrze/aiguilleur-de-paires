@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aiguilleur de paires</title>
+    <link rel='icon' type='image/x-icon' href='/sources/logo/PetitLogo.ico'>
+    <link href='https://cdn.jsdelivr.net' rel='preconnect' crossorigin='anonymous'>
+    <link href='https://cdn.jsdelivr.net/npm/boosted@5.2.3/dist/css/boosted.min.css' rel='stylesheet'
+        integrity='sha384-zYFw+mxKy6r9zpAc1NoGiYBfQmxfvg7ONEMr81WeU+WLPPaLC9QTrNGFJTBi3EIn' crossorigin='anonymous'>
+    <script src='https://cdn.jsdelivr.net/npm/boosted@5.2.3/dist/js/boosted.bundle.min.js'
+        integrity='sha384-MANW37RG4MpFWPMCcNZBnvSobOkBpIGlbBkEzTtD4FbbOzJXbW8TddND1ak2lfsB'
+        crossorigin='anonymous'></script>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css'>
+    <script src="https://code.jquery.com/jquery-3.6.4.slim.min.js"
+        integrity="sha256-a2yjHM4jnF9f54xUQakjZGaqYs/V1CYvWpoqZzC2/Bw=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg" aria-label="Global navigation - Standard example">
+            <div class="container-xxl">
+                <!-- Orange brand logo -->
+                <div class="navbar-brand me-auto me-lg-4">
+                    <a class="stretched-link" href="#">
+                        <img src="/sources/brand/orange-logo.svg" width="50" height="50" alt="Boosted - Back to Home"
+                            loading="lazy">
+                    </a>
+                    <h1 class="two-lined">
+                        Orange
+                        <br>
+                        UI NC - EQ MA LHA
+                    </h1>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <script>
+            function refreshSM() {
+
+                // console.log("list");
+                // if (true) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/controller/use_socket_list.php',
+                    data: "list=list",
+                    dataType: 'text',
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+
+                        console.log(response);
+                        var response = JSON.parse(response);
+                        option = "<option selected>Choisir l'aiguilleur</option>";
+                        if (response[0] == "NONE") {
+                            $("#result").html("Pas d'aiguilleurs disponible");
+                            $("#result-div").addClass("border-danger");
+                            $("#result-div").removeClass("border-success");
+                        } else {
+                            $("#result").html(response)
+                            $("#result-div").removeClass("border-danger");
+                            $("#result-div").addClass("border-success");
+                            for (i = 0; i < response.length; i++) {
+                                option += "<option value='" + response[i] + "'>" + response[i] + "</option>";
+                            }
+                            $('#select-sm').html(option);
+
+                        }
+
+                        console.log(option)
+
+                    }
+                });
+
+            }
+            function sendCommand(command) {
+                var fd = new FormData();
+                var id = "";
+                var id = $("#select-sm").val();
+                fd.append("command", command);
+                fd.append("switchman_id", id)
+
+                var getRequest = "switchman_id=" + id + "&command=" + command;
+
+                console.log(getRequest);
+                // console.log(fd);
+                $.ajax({
+                    type: 'GET',
+                    url: '/controller/use_socket_pair.php',
+                    data: getRequest,
+                    dataType: 'text',
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        var response = JSON.parse(response);
+                        console.log(response);
+                        if (response[0] == "OK") {
+                            if (response[1][0] == "P") {
+                                $("#result").html("Résultat : Aiguilleur sur: " + response[1]);
+                            }
+                            else {
+                                $("#result").html("Résultat : Aiguilleur en: " + response[1]);
+                            }
+                            $("#result-div").removeClass("border-danger");
+                            $("#result-div").addClass("border-success");
+                        } else {
+                            $("#result").html("Résultat : Erreur");
+                            $("#result-div").addClass("border-danger");
+                            $("#result-div").removeClass("border-success");
+                        }
+                        // $("#result").html(response)
+                        // console.log(response);
+                    }
+                });
+
+
+            }
+
+        </script>
+
+        <div class="container my-4">
+            <h2 class="my-4">Contrôler vos aiguilleurs</h2>
+            <div id="forms mx-2">
+                <div id="select-sm-div" class="row">
+                    <div class="col-lg-9">
+                        <select id="select-sm" class="form-select" aria-label="Select Switchman">
+                            <option>Choisir l'aiguilleur</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="submit" class="btn btn-primary mb-3 col form-control"
+                            onclick="refreshSM()">Actualiser</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <button id="P1" onclick="sendCommand('P1')" type="submit"
+                            class="btn btn-secondary mb-3 col form-control">Paire 1</button>
+                    </div>
+                    <div class="col-lg-3">
+                        <button id="P2" onclick="sendCommand('P2')" type="submit"
+                            class="btn btn-success mb-3 col form-control">Paire 2</button>
+                    </div>
+                    <div class="col-lg-3">
+                        <button id="P3" onclick="sendCommand('P3')" type="submit"
+                            class="btn btn-danger mb-3 col form-control">Paire 3</button>
+                    </div>
+                    <div class="col-lg-3">
+                        <button id="P4" onclick="sendCommand('P4')" type="submit"
+                            class="btn btn-info mb-3 col form-control">Paire 4</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button id="CC" onclick="sendCommand('CC')" type="submit"
+                            class="btn btn-primary mb-3 col form-control">Boucle</button>
+                    </div>
+                    <div class="col">
+                        <button id="BO" onclick="sendCommand('BO')" type="submit"
+                            class="btn btn-primary mb-3 col form-control">Ouvert</button>
+                    </div>
+                </div>
+                <div id="result-div" class="container border">
+                    <p id="result" class="p-1 mx-1"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+</body>
+
+</html>
