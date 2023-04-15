@@ -3,26 +3,15 @@ from flask import Flask,jsonify,request
 import socket
 import threading
 from secrets import token_hex
+from os import environ,getenv
+from flask_cors import CORS
 #Example socket : https://www.digitalocean.com/community/tutorials/python-socket-programming-server-client
 
 global switchmans
 switchmans={}
-global androids
-androids={}
 #===========================================================================
 #                            Switchman Socket
 #===========================================================================
-# switchmans = []
-switchmansReturn=[
-  {
-    "id": "a1b2c3e4f5a6"
-  }
-]
-
-switchman={
-  "id": "a1b2c3e4f5a6",
-  "state": "P1"
-}
 
 # Threading for accepting switchman
 # switchman_server_socket : servr socket on port 13000 for switchmans
@@ -38,8 +27,7 @@ def accepting_switchman(switchman_server_socket):
             switchmans[id]=temp_conn
         except:
             pass
-
-    
+ 
 def test_switchman(switchman):
     global switchmans
     conn = switchmans[switchman]
@@ -53,8 +41,6 @@ def test_switchman(switchman):
         switchmans.pop(switchman)
         # print(switchmans)
         return False
-    
-
     
 def is_socket_closed(sock: socket.socket) -> bool:
     try:
@@ -82,23 +68,11 @@ def list_switchmans():
             returning.append({"id":switchman})
         else:
             return False
-        # try:
-        #     # print("try")
-        #     test_switchman(switchman)
-        #     returning.append({"id":switchman})
-        #     # print(returning)            
-        # except Exception as e:
-        #     # print("test")
-        #     if str(e)=="[Errno 32] Broken pipe":
-        #         switchmans.pop(switchman)
-        #         # print(switchmans)
-        #         return False
     return returning
 
 def print_switchmans_list(listToPrint):
     for i in listToPrint:
         print("id : "+i["id"])
-
 
 # function defining all possibilities for chat
 def chat_module(switchman_server_socket):
@@ -117,10 +91,6 @@ def chat_module(switchman_server_socket):
                 toPrint=list_switchmans()
             except:
                 print("(DEBUG) Updated list")
-        # while(not(toPrint)):
-        #     toPrint=list_switchmans(switchmans)
-        #     # print("(DEBUG) Updated switchmans")  
-        # print(toPrint)
         print_switchmans_list(toPrint)
     elif(term_in.split()[0]=="send"): # if send, send a command
         try:
@@ -148,15 +118,10 @@ def chat_module(switchman_server_socket):
         print("Unrecognized command, use help for help")
 
 def server_program():
-    # get the hostname
-    host_sm = "0.0.0.0"
-    # host_sm = "127.0.0.1"
-    port_sm = 13000  # initiate port no above 1024
 
     switchman_server_socket = socket.socket()  # get instance
-    # look closely. The bind() function takes tuple as argument
     # switchman_server_socket.setblocking(0)
-    switchman_server_socket.bind((host_sm, port_sm))  # bind host address and port together
+    switchman_server_socket.bind((HOST, SM_PORT))  # bind host address and port together
 
     # configure how many client the server can listen simultaneously
     switchman_server_socket.listen(32)
@@ -164,18 +129,8 @@ def server_program():
     accepting_sm=threading.Thread(target=accepting_switchman,args=(switchman_server_socket,))
     accepting_sm.start()
     
-    # # Testing connectio without thread
-    # temp_conn, temp_address = switchman_server_socket.accept()  # accept new connection
-    # id=token_hex(6)
-    # print("Connection from: " + str(temp_address) + " token: "+id)
-    # switchmans[id]=temp_conn
-    
-    # print("test")
-    while True:
+    while USE_CHAT:
         chat_module(switchman_server_socket)
-
-
-
 
 #===========================================================================
 #                            Flask
@@ -183,6 +138,7 @@ def server_program():
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
@@ -190,26 +146,28 @@ def get_root():
     return "Welcome to switchman API"
 
 @app.route("/switchmans")
-def get_switchmans():
+def listSwitchmans():
     return jsonify(list_switchmans()),200
     # return jsonify(switchmans),200
 
-@app.route("/switchmans/act", methods=['POST'])
-def post_act_switchman():
+@app.route("/switchmans/send", methods=['POST'])
+def sendSwitchman():
     global switchmans
-    key_allowed=["id","state"]
+    key_allowed=["id","pair"]
     data=request.get_json()
     if(data):
+        if len(data)!=2:
+            return 'Bad JSON',400
         for key in data:
             if (not(key in key_allowed)):
-                return '',400
+                return 'Bad JSON',400
         idFound=False
         for  switchman in switchmans:
             if switchman==data['id']:
                 idFound=True
                 # getting information
                 id=data['id']
-                command=data['state'] 
+                command=data['pair'] 
                 # Update database
                 # switchmans[id]['state']==command 
                 conn_sm=switchmans[id]
@@ -221,19 +179,30 @@ def post_act_switchman():
                     print("(DEBUG) Data recv from switchman after order android ("+id+") : "+ input_data)
                 else:
                     print("(DEBUG) SMDisco")
-                    return 'Switchman Not Found',410
+                    return 'Switchman Not Found',404
         if(idFound):
-            return jsonify(switchman),200
+            return jsonify({"id": id,"pair":command}),200
         else:
             print('(DEBUG) SM not found')
             return 'Switchman Not Found',404
     else:
-        return '',400
-
-
-
+        return 'No Data',400
 
 if __name__ == '__main__':
+    
+    if "HOST" in environ:
+        HOST = getenv("HOST")
+    else:
+        HOST = "0.0.0.0"
+    if "SM_PORT" in environ:
+        SM_PORT = getenv("SM_PORT")
+    else:
+        SM_PORT = 13000
+    if "USE_CHAT" in environ:
+        USE_CHAT=True
+    else:
+        USE_CHAT=False
+    
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
     app.run(host="0.0.0.0")
