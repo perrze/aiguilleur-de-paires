@@ -1,3 +1,4 @@
+#!/bin/python
 from flask import Flask,jsonify,request
 import socket
 import threading
