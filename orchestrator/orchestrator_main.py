@@ -5,6 +5,7 @@ import threading
 from secrets import token_hex
 from os import environ,getenv
 from flask_cors import CORS
+import sys
 #Example socket : https://www.digitalocean.com/community/tutorials/python-socket-programming-server-client
 
 global switchmans
@@ -155,6 +156,7 @@ def sendSwitchman():
     global switchmans
     key_allowed=["id","pair"]
     data=request.get_json()
+    print("Data to check"+str(data), file=sys.stderr)
     if(data):
         if len(data)!=2:
             return 'Bad JSON',400
@@ -205,4 +207,4 @@ if __name__ == '__main__':
     
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0",debug="run")
