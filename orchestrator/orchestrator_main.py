@@ -15,25 +15,25 @@ import sys
 #===========================================================================
 
 # Threading for accepting switchman
-# switchman_server_socket : servr socket on port 13000 for switchmans
+# switchman_server_socket : server socket on port 13000 for switchmans
 def accepting_switchman(switchman_server_socket):
-    global switchmans
-    # print("test")
+    global switchmans # Calling the global var
     while True:
         try:
             temp_conn, temp_address = switchman_server_socket.accept()  # accept new connection
             id = temp_conn.recv(1024).decode()
             # id=token_hex(6) # generate a token of 12 char for simulating bluetooth mac
-            if RGPD_COMPLIANCE:
-                info_logger.info("Switchman connected from token: " + id)
+            # Logging
+            if GDPR_COMPLIANCE:
+                info_logger.info("Switchman connected from token: " + id)  
             else:
                 info_logger.info("Switchman connected from: " + str(temp_address) + " token: "+id)
-                  
-                
+            # Adding new switchmans to temporary DB      
             switchmans[id]=temp_conn
         except:
             pass
- 
+"""Used for testing socket connection to a switchman
+"""
 def test_switchman(switchman):
     global switchmans
     conn = switchmans[switchman]
@@ -47,7 +47,8 @@ def test_switchman(switchman):
         switchmans.pop(switchman)
         # print(switchmans)
         return False
-    
+"""Used to check if a socket is closed by differents means
+"""
 def is_socket_closed(sock: socket.socket) -> bool:
     try:
         # this will try to read bytes without blocking and also without removing them from buffer (peek only)
@@ -62,16 +63,16 @@ def is_socket_closed(sock: socket.socket) -> bool:
         return False
     return False
 
+"""List the switchmans known by the DB 
+"""
 def list_switchmans():
     global switchmans
-    # print(len(switchmans))
-    if not(len(switchmans)>0):
+    if not(len(switchmans)>0): # If the list is empty
        return [{"id":"List Empty"}]
     returning=[]
-    for switchman in switchmans:
-        # print("for")
-        if(test_switchman(switchman)):
-            returning.append({"id":switchman})
+    for switchman in switchmans: # For each switchmans known
+        if(test_switchman(switchman)): # Testing if the switchman's socket is close
+            returning.append({"id":switchman}) # Adding a Switchman object to the list which will be returned
         else:
             return False
     return returning
@@ -80,7 +81,9 @@ def print_switchmans_list(listToPrint):
     for i in listToPrint:
         print("id : "+i["id"],file=sys.stderr)
 
-# function defining all possibilities for chat
+"""Chat module is use for controlling switchmans from command line
+It can be started automatically by passing the USE_CHAT in environment variables
+"""
 def chat_module(switchman_server_socket):
     global switchmans
     term_in = input(' -> ')
@@ -150,25 +153,30 @@ CORS(app)
 @app.route("/")
 def get_root():
     return "Welcome to switchman API"
-
+"""List the switchmans known by the orchestrator formatted according to the contract
+"""
 @app.route("/switchmans")
 def listSwitchmans():
-    # print(list_switchmans(),file=sys.stderr)
     return jsonify(list_switchmans()),200
-
+    
+"""Make a Switchman executing an order given in a post request
+"""
 @app.route("/switchmans/send", methods=['POST'])
 def sendSwitchman():
+    # Getting data sent
     data=request.json
     info_logger.info("Data sent: "+str(data))
-    global switchmans
+    global switchmans 
     key_allowed=["id","pair"]
     if(data):
+        # Testing if data is well formatted
         if len(data)!=2:
             return 'Bad JSON',400
         for key in data:
             if (not(key in key_allowed)):
                 return 'Bad JSON',400
         idFound=False
+        # Searching for the good switchman
         for  switchman in switchmans:
             if switchman==data['id']:
                 idFound=True
@@ -178,7 +186,7 @@ def sendSwitchman():
                 # Update database
                 # switchmans[id]['state']==command 
                 conn_sm=switchmans[id]
-                if test_switchman(switchman): # Trying, to be removed ?
+                if test_switchman(switchman): # Testing if the socket is still open
                     info_logger.info("Command sent to SM ("+id+"): "+command)
                     conn_sm.send(command.encode())  # send data to the client
                     # receive data stream. it won't accept data packet greater than 1024 bytes
@@ -187,9 +195,9 @@ def sendSwitchman():
                 else:
                     debug_logger.debug("Switchman disconnected")
                     return 'Switchman Not Found',404
-        if(idFound):
+        if(idFound): # Switchman was found and action were taken
             return jsonify({"id": id,"pair":command}),200
-        else:
+        else: # Switchman not found
             debug_logger.debug("Switchman ("+id+") not found")
             return 'Switchman Not Found',404
     else:
@@ -200,7 +208,6 @@ def sendSwitchman():
 # ---------------------------------------------------------------------------- #
 
 formatter = logging.Formatter('%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',datefmt='%H:%M:%S')
-
 def setup_logger(name, log_file, level=logging.INFO):
 
     handler = logging.FileHandler(log_file)        
@@ -219,6 +226,8 @@ switchmans={}
 
 if __name__ == '__main__':
     
+    # Setuping loggers
+    
     info_logger = setup_logger('info_logger','/var/log/orchestrator.info.log',level=logging.INFO)
     debug_logger = setup_logger('debug_logger','/var/log/orchestrator.debug.log',level=logging.DEBUG)
     
@@ -228,6 +237,11 @@ if __name__ == '__main__':
                         datefmt='%H:%M:%S',
                         level=logging.INFO)
     
+    
+    # Defining constants
+    """We are using default values for each of constants
+    They can be changed by environment variables
+    """
     if "HOST" in environ:
         HOST = getenv("HOST")
     else:
@@ -240,11 +254,15 @@ if __name__ == '__main__':
         USE_CHAT=True
     else:
         USE_CHAT=False
-    if "RGPD_COMPLIANCE" in environ:
-        RGPD_COMPLIANCE = eval(getenv("RGPD_COMPLIANCE"))
+    if "GDPR_COMPLIANCE" in environ:
+        GDPR_COMPLIANCE = eval(getenv("GDPR_COMPLIANCE"))
     else:
-        RGPD_COMPLIANCE = False
+        GDPR_COMPLIANCE = False
+        
+    # Starting a thread for switchman acceptance
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
+    
+    # Starting flask
     app.run(host=HOST)
     
