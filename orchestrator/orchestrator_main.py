@@ -1,15 +1,15 @@
 #!/bin/python
+# ---------------------------------- Imports --------------------------------- #
+
 from flask import Flask,jsonify,request
 import socket
 import threading
+import logging
 from secrets import token_hex
 from os import environ,getenv
 from flask_cors import CORS
 import sys
-#Example socket : https://www.digitalocean.com/community/tutorials/python-socket-programming-server-client
 
-global switchmans
-switchmans={}
 #===========================================================================
 #                            Switchman Socket
 #===========================================================================
@@ -24,7 +24,12 @@ def accepting_switchman(switchman_server_socket):
             temp_conn, temp_address = switchman_server_socket.accept()  # accept new connection
             id = temp_conn.recv(1024).decode()
             # id=token_hex(6) # generate a token of 12 char for simulating bluetooth mac
-            print("Connection from: " + str(temp_address) + " token: "+id,file=sys.stderr)
+            if RGPD_COMPLIANCE:
+                info_logger.info("Switchman connected from token: " + id)
+            else:
+                info_logger.info("Switchman connected from: " + str(temp_address) + " token: "+id)
+                  
+                
             switchmans[id]=temp_conn
         except:
             pass
@@ -150,13 +155,11 @@ def get_root():
 def listSwitchmans():
     # print(list_switchmans(),file=sys.stderr)
     return jsonify(list_switchmans()),200
-    # return jsonify(switchmans),200
 
 @app.route("/switchmans/send", methods=['POST'])
 def sendSwitchman():
-    print(request.get_data(),file=sys.stderr)
     data=request.json
-    print("Data to check "+str(data),file=sys.stderr)
+    info_logger.info("Data sent: "+str(data))
     global switchmans
     key_allowed=["id","pair"]
     if(data):
@@ -176,23 +179,54 @@ def sendSwitchman():
                 # switchmans[id]['state']==command 
                 conn_sm=switchmans[id]
                 if test_switchman(switchman): # Trying, to be removed ?
-                    print("(DEBUG) Command sent to SM ("+id+"): "+command)
+                    info_logger.info("Command sent to SM ("+id+"): "+command)
                     conn_sm.send(command.encode())  # send data to the client
                     # receive data stream. it won't accept data packet greater than 1024 bytes
                     input_data = conn_sm.recv(1024).decode() # recv client response
-                    print("(DEBUG) Data recv from switchman after order android ("+id+") : "+ input_data,file=sys.stderr)
+                    debug_logger.debug("Data recv from switchman ("+id+") : "+ input_data)
                 else:
-                    print("(DEBUG) SMDisco",file=sys.stderr)
+                    debug_logger.debug("Switchman disconnected")
                     return 'Switchman Not Found',404
         if(idFound):
             return jsonify({"id": id,"pair":command}),200
         else:
-            print('(DEBUG) SM not found',file=sys.stderr)
+            debug_logger.debug("Switchman ("+id+") not found")
             return 'Switchman Not Found',404
     else:
         return 'No Data',400
 
+# ---------------------------------------------------------------------------- #
+#                                Main functions                                #
+# ---------------------------------------------------------------------------- #
+
+formatter = logging.Formatter('%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',datefmt='%H:%M:%S')
+
+def setup_logger(name, log_file, level=logging.INFO):
+
+    handler = logging.FileHandler(log_file)        
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+# ---------------------------- Setup instructions ---------------------------- #
+
+global switchmans
+switchmans={}
+
 if __name__ == '__main__':
+    
+    info_logger = setup_logger('info_logger','/var/log/orchestrator.info.log',level=logging.INFO)
+    debug_logger = setup_logger('debug_logger','/var/log/orchestrator.debug.log',level=logging.DEBUG)
+    
+    logging.basicConfig(filename="/var/log/orchestrator.flask.log",
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.INFO)
     
     if "HOST" in environ:
         HOST = getenv("HOST")
@@ -206,6 +240,10 @@ if __name__ == '__main__':
         USE_CHAT=True
     else:
         USE_CHAT=False
+    if "RGPD_COMPLIANCE" in environ:
+        RGPD_COMPLIANCE = eval(getenv("RGPD_COMPLIANCE"))
+    else:
+        RGPD_COMPLIANCE = False
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
     app.run(host=HOST)

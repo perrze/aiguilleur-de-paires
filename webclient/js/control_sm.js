@@ -12,6 +12,7 @@ function refreshSM() {
                     $("#result").html("Pas d'aiguilleur disponible.");
                     $("#result-div").addClass("border-danger");
                     $("#result-div").removeClass("border-success");
+
                 } else {
                     // console.log(response)
                     $("#result").html("Des aiguilleurs ont été trouvés.")
@@ -20,9 +21,8 @@ function refreshSM() {
                     for (i = 0; i < response.length; i++) {
                         option += "<option value='" + response[i].id + "'>" + response[i].id + "</option>";
                     }
-                    $('#select-sm').html(option);
-
                 }
+                $('#select-sm').html(option);
             }
         }
 
