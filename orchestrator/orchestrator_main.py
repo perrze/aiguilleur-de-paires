@@ -207,4 +207,4 @@ if __name__ == '__main__':
     
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
-    app.run(host=HOST,debug="run",port=5000)
+    app.run(host=HOST)
