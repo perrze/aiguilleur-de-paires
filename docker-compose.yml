@@ -4,14 +4,14 @@ services:
     build: ./orchestrator
     ports:
       - 5001:5000
-      - 13000:13001
-    environment:
-      - SM_PORT=13001
+      - 13000:13000
     volumes:
       # Temp for dev
       - ./orchestrator/orchestrator_main.py:/opt/orchestrator_main.py
     labels:
       - "traefik.http.routers.users.rule=Host(`api.adp.bb0.fr`)"
+    environment:
+      - PYTHONUNBUFFERED=0
   frontend:
     image: caddy:latest
     restart: unless-stopped

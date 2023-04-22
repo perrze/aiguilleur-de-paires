@@ -76,9 +76,7 @@
                     url: 'http://api.adp.bb0.fr/switchmans/send',
                     data: JSON.stringify(data),
                     dataType: 'json',
-                    contentType: 'application/json',
-                    processData: false,
-                    contentType: false,
+                    contentType: 'application/json; charset=utf-8',
                     200: function (response) {
                         console.log(response);
                         if ((response.pair)[0] == "P") {

@@ -24,7 +24,7 @@ def accepting_switchman(switchman_server_socket):
             temp_conn, temp_address = switchman_server_socket.accept()  # accept new connection
             id = temp_conn.recv(1024).decode()
             # id=token_hex(6) # generate a token of 12 char for simulating bluetooth mac
-            print("Connection from: " + str(temp_address) + " token: "+id)
+            print("Connection from: " + str(temp_address) + " token: "+id,file=sys.stderr)
             switchmans[id]=temp_conn
         except:
             pass
@@ -73,7 +73,7 @@ def list_switchmans():
 
 def print_switchmans_list(listToPrint):
     for i in listToPrint:
-        print("id : "+i["id"])
+        print("id : "+i["id"],file=sys.stderr)
 
 # function defining all possibilities for chat
 def chat_module(switchman_server_socket):
@@ -84,14 +84,14 @@ def chat_module(switchman_server_socket):
     if (term_in=="help"): # if help print help
         print("help menu :\n"
               "- send switchman_id command (ex: send a1b2c3 P1) : send a command to a switchman\n"
-              "- list : give the list of available switchman\n")
+              "- list : give the list of available switchman\n",file=sys.stderr)
     elif (term_in=="list"): # if list print list of switchmans
         toPrint=False
         while(not(toPrint)):
             try:
                 toPrint=list_switchmans()
             except:
-                print("(DEBUG) Updated list")
+                print("(DEBUG) Updated list",file=sys.stderr)
         print_switchmans_list(toPrint)
     elif(term_in.split()[0]=="send"): # if send, send a command
         try:
@@ -103,20 +103,20 @@ def chat_module(switchman_server_socket):
             conn.send(command.encode())  # send data to the client
             # receive data stream. it won't accept data packet greater than 1024 bytes
             input_data = conn.recv(1024).decode() # recv client response
-            print("(DEBUG) Data recv from switchman ("+id+") : "+ input_data)
+            print("(DEBUG) Data recv from switchman ("+id+") : "+ input_data,file=sys.stderr)
         except:
-            print("(DEBUG) Error in send synthax")
+            print("(DEBUG) Error in send synthax",file=sys.stderr)
     elif(term_in=="exit"):
         for id in switchmans:
             conn = switchmans[id]
             conn.send("CL".encode())  # send data to the client
             # receive data stream. it won't accept data packet greater than 1024 bytes
             input_data = conn.recv(1024).decode() # recv client response
-            print("(DEBUG) Data recv from switchman ("+id+") : "+ input_data)
+            print("(DEBUG) Data recv from switchman ("+id+") : "+ input_data,file=sys.stderr)
         switchman_server_socket.close()
         exit()
     else:
-        print("Unrecognized command, use help for help")
+        print("Unrecognized command, use help for help",file=sys.stderr)
 
 def server_program():
 
@@ -148,15 +148,17 @@ def get_root():
 
 @app.route("/switchmans")
 def listSwitchmans():
+    # print(list_switchmans(),file=sys.stderr)
     return jsonify(list_switchmans()),200
     # return jsonify(switchmans),200
 
 @app.route("/switchmans/send", methods=['POST'])
 def sendSwitchman():
+    print(request.get_data(),file=sys.stderr)
+    data=request.json
+    print("Data to check "+str(data),file=sys.stderr)
     global switchmans
     key_allowed=["id","pair"]
-    data=request.get_json()
-    print("Data to check"+str(data), file=sys.stderr)
     if(data):
         if len(data)!=2:
             return 'Bad JSON',400
@@ -178,14 +180,14 @@ def sendSwitchman():
                     conn_sm.send(command.encode())  # send data to the client
                     # receive data stream. it won't accept data packet greater than 1024 bytes
                     input_data = conn_sm.recv(1024).decode() # recv client response
-                    print("(DEBUG) Data recv from switchman after order android ("+id+") : "+ input_data)
+                    print("(DEBUG) Data recv from switchman after order android ("+id+") : "+ input_data,file=sys.stderr)
                 else:
-                    print("(DEBUG) SMDisco")
+                    print("(DEBUG) SMDisco",file=sys.stderr)
                     return 'Switchman Not Found',404
         if(idFound):
             return jsonify({"id": id,"pair":command}),200
         else:
-            print('(DEBUG) SM not found')
+            print('(DEBUG) SM not found',file=sys.stderr)
             return 'Switchman Not Found',404
     else:
         return 'No Data',400
@@ -204,7 +206,7 @@ if __name__ == '__main__':
         USE_CHAT=True
     else:
         USE_CHAT=False
-    
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
     app.run(host=HOST)
+    
