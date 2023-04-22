@@ -197,7 +197,7 @@ if __name__ == '__main__':
     else:
         HOST = "0.0.0.0"
     if "SM_PORT" in environ:
-        SM_PORT = getenv("SM_PORT")
+        SM_PORT = int(getenv("SM_PORT"))
     else:
         SM_PORT = 13000
     if "USE_CHAT" in environ:
@@ -207,4 +207,4 @@ if __name__ == '__main__':
     
     serverThread=threading.Thread(target=server_program)
     serverThread.start()
-    app.run(host="0.0.0.0",debug="run")
+    app.run(host=HOST,debug="run",port=5000)
