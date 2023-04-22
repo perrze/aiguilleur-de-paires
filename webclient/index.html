@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Aiguilleur de paires</title>
     <link rel='icon' type='image/x-icon' href='/sources/logo/PetitLogo.ico'>
     <link href="/css/boosted/boosted.min.css" rel="stylesheet">
-    <!-- <script src="/js/main.js"></script> -->
     <script src="/js/jquery-3.6.4.min.js"></script>
-    <!-- <script src="/js/bootstrap/popper.min.js"></script> -->
     <script src="/js/boosted/boosted.bundle.min.js"></script>
     <!-- <script src="/js/js.cookie.min.js"></script> -->
+    <script src="/js/main.js"></script>
+    <script src="/js/control_sm.js"></script>
 </head>
 
 <body>
@@ -31,81 +32,6 @@
         </nav>
     </header>
     <main>
-        <script>
-            function refreshSM() {
-
-                // console.log("list");
-                // if (true) {
-                $.ajax({
-                    type: 'GET',
-                    url: 'http://api.adp.bb0.fr/switchmans',
-                    processData: false,
-                    contentType: false,
-                    statusCode : {
-                        200: function (response) {
-                            console.log(response);
-                            option = "<option selected>Choisir l'aiguilleur</option>";
-                            if (response[0].id == "List Empty") {
-                                $("#result").html("Pas d'aiguilleurs disponible");
-                                $("#result-div").addClass("border-danger");
-                                $("#result-div").removeClass("border-success");
-                            } else {
-                                $("#result").html(response)
-                                $("#result-div").removeClass("border-danger");
-                                $("#result-div").addClass("border-success");
-                                for (i = 0; i < response.length; i++) {
-                                    option += "<option value='" + response[i].id + "'>" + response[i].id + "</option>";
-                                }
-                                $('#select-sm').html(option);
-    
-                            }
-                        }
-                    }
-                        
-                });
-
-            }
-            function sendCommand(command) {
-                var id = $("#select-sm").val();
-                var data = {"id" : id, "pair":command}
-
-
-                console.log(data);
-                $.ajax({
-                    type: 'POST',
-                    url: 'http://api.adp.bb0.fr/switchmans/send',
-                    data: JSON.stringify(data),
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    200: function (response) {
-                        console.log(response);
-                        if ((response.pair)[0] == "P") {
-                            $("#result").html("Résultat : Aiguilleur sur: " + response.pair);
-                        }
-                        else {
-                            $("#result").html("Résultat : Aiguilleur en: " + response.pair);
-                        }
-                        $("#result-div").removeClass("border-danger");
-                        $("#result-div").addClass("border-success");
-                      },
-                      400: function(xhr) {
-                        $("#result").html("Résultat : Erreur, Mauvais formattage JSON");
-                        $("#result-div").addClass("border-danger");
-                        $("#result-div").removeClass("border-success");
-                      },
-                      404: function (xhr) {
-                        $("#result").html("Résultat : Erreur, Mauvais formattage JSON");
-                        $("#result-div").addClass("border-danger");
-                        $("#result-div").removeClass("border-success");
-                    }
-
-                });
-
-
-            }
-
-        </script>
-
         <div class="container my-4">
             <h2 class="my-4">Contrôler vos aiguilleurs</h2>
             <div id="forms mx-2">
@@ -154,8 +80,6 @@
             </div>
         </div>
     </main>
-
-
 </body>
 
 </html>

@@ -19,7 +19,7 @@ services:
       - "5006:80"
     volumes:
       - ./webclient:/srv/
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./webclient/Caddyfile:/etc/caddy/Caddyfile
     labels:
       - "traefik.http.routers.frontend.rule=Host(`adp.bb0.fr`)"
 
