@@ -18,7 +18,7 @@ def client_program():
     
     while True:
         
-        input_data = client_socket.recv(1024).decode()  # receive server port order
+        input_data = client_socket.recv(51).decode()  # receive server port order
         if input_data=="CL":
             break
         elif input_data=="TS":

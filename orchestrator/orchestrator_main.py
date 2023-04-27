@@ -13,6 +13,7 @@ import sys
 #===========================================================================
 #                            Switchman Socket
 #===========================================================================
+    
 
 # Threading for accepting switchman
 # switchman_server_socket : server socket on port 13000 for switchmans
@@ -187,12 +188,12 @@ def sendSwitchman():
                 # Update database
                 # switchmans[id]['state']==command 
                 conn_sm=switchmans[id]
-                test_switchman(switchman)
+                # test_switchman(switchman)
                 if test_switchman(switchman): # Testing if the socket is still open
                     info_logger.info("Command sent to SM ("+id+"): "+command)
                     conn_sm.send(command.encode())  # send data to the client
                     # receive data stream. it won't accept data packet greater than 1024 bytes
-                    input_data = conn_sm.recv(1024).decode() # recv client response
+                    input_data = conn_sm.recv(51).decode() # recv client response
                     debug_logger.debug("Data recv from switchman ("+id+") : "+ input_data)
                 else:
                     debug_logger.debug("Switchman disconnected")
