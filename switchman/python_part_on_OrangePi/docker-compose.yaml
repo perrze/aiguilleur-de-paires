@@ -1,0 +1,12 @@
+version: "1.0"
+services:
+  switchman:
+    build: .
+    volumes:
+      - /sys/kernel/debug/bluetooth/hci0/identity:/opt/identity
+      - /dev/ttyACM0:/dev/ttyACM0
+    environment:
+      - ORCHIP=api.adp.bb0.fr
+      - MAC_FILE=/opt/identity
+    devices:
+      - /dev/ttyACM0

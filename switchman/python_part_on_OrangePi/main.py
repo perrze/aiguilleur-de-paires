@@ -60,5 +60,6 @@ if __name__ == '__main__':
         MAC_FILE = getenv("MAC_FILE")
     else:
         MAC_FILE="/sys/kernel/debug/bluetooth/hci0/identity"
+    print(HOST)
     client_program()
     # print(send_mac_address_6())
