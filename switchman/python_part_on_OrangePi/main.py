@@ -1,6 +1,7 @@
 #!/bin/python3
 import socket
 import serial
+import logging
 from os import environ,getenv
 
 def client_program():
@@ -23,9 +24,9 @@ def client_program():
         elif input_data=="TS":
             client_socket.send("OK".encode())
         else:
-            print("(DEBUG) Data recv from master : "+input_data) 
+            info_logger.info("Data recv from master : "+input_data) 
             output_data = serial_connection(input_data,ser)
-            print("(DEBUG) Data recv from Arduino : "+output_data)
+            info_logger.info("Data recv from Arduino : "+output_data)
             client_socket.send(output_data.encode())
 
     client_socket.send("EX".encode())
@@ -34,13 +35,29 @@ def client_program():
 
 def serial_connection(port,ser):
     ser.write((port+"\n").encode('utf-8')) # writing received port into arduino
+    info_logger.info("Command sent to SM: " + port+"\\n")
     line = ser.readline().decode('utf-8').rstrip()
+    info_logger.info("Command received from SM: " + line)
     return line
 
 def get_mac_address():
     with open(MAC_FILE) as f:
         content = f.read()
     return ''.join(content.split()[0].split(":"))
+
+formatter = logging.Formatter('%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',datefmt='%H:%M:%S')
+def setup_logger(name, log_file, level=logging.INFO):
+
+    handler = logging.FileHandler(log_file)        
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+info_logger = setup_logger('info_logger','/var/log/switchman.info.log',level=logging.INFO)
 
 
 if __name__ == '__main__':
