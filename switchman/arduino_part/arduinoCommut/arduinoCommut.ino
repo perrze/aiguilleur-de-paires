@@ -39,51 +39,51 @@ void loop(){
   // Serial.print(inputString);
   if(inputString == "P1"){
     resetPort();
-    // Wire A : K1 OPEN, K2 OPEN 
-    // Wire B: K5 OPEN, K6 OPEN
+    // Wire A : K3 OPEN, K4 OPEN 
+    // Wire B: K6 OPEN, K7 OPEN
     //do nothing because default
     
   }
   if (inputString == "P2"){
     resetPort();
-    // Wire A : K1 OPEN, K2 CLOSE 
-    // Wire B: K5 OPEN, K6 CLOSE
-      digitalWrite(K2, LOW);
-      digitalWrite(K5, LOW);
+    // Wire A : K3 OPEN, K4 CLOSE 
+    // Wire B: K6 OPEN, K7 CLOSE
+      digitalWrite(K4, LOW);
+      digitalWrite(K7, LOW);
   }
   if (inputString == "P3"){
     resetPort();
-    // Wire A : K1 CLOSE, K3 OPEN 
-    // Wire B: K5 CLOSE, K7 OPEN
-    digitalWrite(K1, LOW);
-    digitalWrite(K4, LOW);
-  }
-  if (inputString == "P4"){
-    resetPort();
-    // Wire A : K1 CLOSE, K3 CLOSE 
-    // Wire B: K5 CLOSE, K6 CLOSE
-    digitalWrite(K1, LOW);
-    digitalWrite(K4, LOW);
+    // Wire A : K3 CLOSE, K5 OPEN 
+    // Wire B: K6 CLOSE, K8 OPEN
     digitalWrite(K3, LOW);
     digitalWrite(K6, LOW);
   }
+  if (inputString == "P4"){
+    resetPort();
+    // Wire A : K3 CLOSE, K5 CLOSE 
+    // Wire B: K6 CLOSE, K8 CLOSE
+    digitalWrite(K3, LOW);
+    digitalWrite(K5, LOW);
+    digitalWrite(K6, LOW);
+    digitalWrite(K8, LOW);
+  }
   if (inputString== "CC"){
     // K7 CLOSE, K8 CLOSE
-    digitalWrite(K7, LOW);
-    digitalWrite(K8, LOW);
+    digitalWrite(K1, LOW);
+    digitalWrite(K2, LOW);
   }
   if (inputString== "BO"){
     // K7 OPEN, K8 OPEN
-    digitalWrite(K7, HIGH);
-    digitalWrite(K8, HIGH);
+    digitalWrite(K1, HIGH);
+    digitalWrite(K2, HIGH);
   }
 
 }
 void resetPort(){
+  digitalWrite(K8, HIGH);
+  digitalWrite(K7, HIGH);
   digitalWrite(K6, HIGH);
   digitalWrite(K5, HIGH);
   digitalWrite(K4, HIGH);
   digitalWrite(K3, HIGH);
-  digitalWrite(K2, HIGH);
-  digitalWrite(K1, HIGH);
 }
