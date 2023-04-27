@@ -32,7 +32,8 @@ function refreshSM() {
 function sendCommand(command) {
     var id = $("#select-sm").val();
     var data = { "id": id, "pair": command }
-
+    var delay = 3000; // Prevent bad call
+    setTimeout( sendCommand, delay )
 
     console.log(data);
     $.ajax({

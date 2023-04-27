@@ -73,9 +73,10 @@ def list_switchmans():
     for switchman in switchmans: # For each switchmans known
         if(test_switchman(switchman)): # Testing if the switchman's socket is close
             returning.append({"id":switchman}) # Adding a Switchman object to the list which will be returned
-        else:
-            return False
-    return returning
+    if (len(returning)>0):
+        return returning
+    else:
+        return [{"id":"List Empty"}]
 
 def print_switchmans_list(listToPrint):
     for i in listToPrint:
@@ -186,6 +187,7 @@ def sendSwitchman():
                 # Update database
                 # switchmans[id]['state']==command 
                 conn_sm=switchmans[id]
+                test_switchman(switchman)
                 if test_switchman(switchman): # Testing if the socket is still open
                     info_logger.info("Command sent to SM ("+id+"): "+command)
                     conn_sm.send(command.encode())  # send data to the client
