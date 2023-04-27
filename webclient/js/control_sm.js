@@ -29,12 +29,19 @@ function refreshSM() {
     });
 
 }
+var timeout=Date.now();
+
 function sendCommand(command) {
     var id = $("#select-sm").val();
     var data = { "id": id, "pair": command }
-    var delay = 3000; // Prevent bad call
-    setTimeout( sendCommand, delay )
-
+    new_timeout=Date.now();
+    if(new_timeout-timeout<3000){
+        $("#result").html("Erreur, Veuillez attendre 3 secondes entre les commandes");
+        $("#result-div").addClass("border-danger");
+        $("#result-div").removeClass("border-success");
+        return false
+    }
+    timeout=new_timeout;
     console.log(data);
     $.ajax({
         type: 'POST',
