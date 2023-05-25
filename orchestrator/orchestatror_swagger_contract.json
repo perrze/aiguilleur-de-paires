@@ -1,0 +1,122 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Orchestrator API - Aiguilleur de paires",
+        "description": "This API allow to control the switchmans connected to the orchestrator of an **Aguilleur de paires**",
+        "version": "1.0.0"
+    },
+    "servers": [{
+        "url": "http://api.adp.bb0.fr"
+    }],
+    "tags": [{
+        "name": "switchmans",
+        "description": "Operations about switchmans"
+    }],
+    "paths": {
+        "/switchmans": {
+            "get": {
+                "tags": [
+                    "switchmans"
+                ],
+                "summary": "List all switchmans connected",
+                "description": "",
+                "operationId": "listSwitchmans",
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Switchmans"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                    "jwt": []
+                }]
+            }
+        },
+        "/switchmans/send": {
+            "post": {
+                "tags": [
+                    "switchmans"
+                ],
+                "summary": "Send a command to a Switchman",
+                "description": "Tell a Switchman to switch a pair",
+                "operationId": "sendSwitchman",
+                "requestBody": {
+                    "description": "Switchman ID a pair to switch on",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "id",
+                                        "example": "e7d65a73a083"
+                                    },
+                                    "pair": {
+                                        "type": "string",
+                                        "format": "pair",
+                                        "example": "P2"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Switchman"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad JSON"
+                    },
+                    "404": {
+                        "description": "Switchman not found"
+                    }
+                },
+                "security": [{
+                    "jwt": []
+                }]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Switchmans": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Switchman"
+                }
+            },
+            "Switchman": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "mac",
+                        "example": "e7d65a73a083"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "jwt": {
+                "type": "apiKey",
+                "name": "jwt",
+                "in": "header"
+            }
+        }
+    }
+}
